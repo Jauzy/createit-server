@@ -9,13 +9,14 @@ const verifyToken = (req, res, next) => {
             else {
                 req.user = {
                     email: decoded.email,
-                    id: decoded.id
+                    id: decoded.id,
+                    type: decoded.type
                 }
                 next()
             }
         });
     } else {
-        res.status(400).send({message : "Invalid Token"})
+        res.status(400).send({ message: "Invalid Token" })
     }
 }
 

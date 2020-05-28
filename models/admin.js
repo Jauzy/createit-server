@@ -4,7 +4,7 @@ mongoose.set('useCreateIndex', true)
 const Schema = mongoose.Schema
 
 //bikin model schema database
-const UserSchema = new Schema ({
+const AdminSchema = new Schema ({
     name : {
         type : String,
         required : [true, 'Please input name']
@@ -20,4 +20,4 @@ const UserSchema = new Schema ({
 })
 
 //User sebagai nama collection mongoose
-module.exports = mongoose.model("User", UserSchema)
+module.exports = mongoose.model("Admin", AdminSchema)
