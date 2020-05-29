@@ -22,6 +22,13 @@ const ContestSchema = new Schema({
     },
     template: {
         type: Boolean
+    },
+    picture: {
+        type: String
+    },
+    created: {
+        type: Date,
+        required: [true, 'Please input date created']
     }
 })
 

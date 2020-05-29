@@ -28,7 +28,9 @@ class ContestController {
                 category: req.body.category,
                 duration: req.body.duration,
                 brief: req.body.brief,
-                template: req.body.template
+                template: req.body.template,
+                picture: req.picture,
+                created: new Date()
             })
             contest.save()
                 .then(() => {
