@@ -50,7 +50,7 @@ class ParticipationController {
                 else if (req.user.id != participation.user_id) res.status(401).send({ message: 'user not authorized' })
                 else {
                     Participation.findByIdAndDelete(req.params.participation_id, (err, result) => {
-                        res.send({ message: "Participation Deleted Successfully" })
+                        res.send({ message: "Participation Canceled Successfully" })
                     })
                 }
             })
