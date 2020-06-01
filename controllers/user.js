@@ -27,8 +27,8 @@ class UserController {
                     if (err) console.log(err)
                     else {
                         if (result) {
-                            const token = jwt.sign({ id: user._id, email: user.email, type: 'client' }, process.env.SECRETKEY)
-                            res.send({ message: 'Client login successfully', user, token })
+                            const token = jwt.sign({ id: user._id, email: user.email, type: req.body.type }, process.env.SECRETKEY)
+                            res.send({ message: req.body.type + ' Login successfully', user, token })
                         }
                         else {
                             res.status(400).send({ message: 'Wrong email or password' })
@@ -46,6 +46,7 @@ class UserController {
                 else {
                     res.send({
                         message: "request success", user: {
+                            id: userData._id,
                             name: userData.name,
                             email: userData.email
                         }
@@ -60,6 +61,7 @@ class UserController {
                 else {
                     res.send({
                         message: "request success", user: {
+                            id: userData._id,
                             name: userData.name,
                             email: userData.email,
                             category: userData.category,
@@ -82,6 +84,7 @@ class UserController {
                 else {
                     res.send({
                         message: "request success", user: {
+                            id: userData._id,
                             name: userData.name,
                             email: userData.email,
                             phone_no: userData.phone_no

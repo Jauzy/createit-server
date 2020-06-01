@@ -23,5 +23,4 @@ const ClientSchema = new Schema({
     }
 })
 
-//User sebagai nama collection mongoose
 module.exports = mongoose.model("Client", ClientSchema)

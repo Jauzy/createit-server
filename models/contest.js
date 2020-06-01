@@ -9,9 +9,17 @@ const ContestSchema = new Schema({
         type: Schema.Types.ObjectId, ref:'Client',
         required: [true, 'Please input user id']
     },
+    title: {
+        type: String,
+        required: [true, 'Please input title']
+    },
     category: {
         type: String,
-        required: [true, 'Please input name']
+        required: [true, 'Please input category']
+    },
+    sub_category: {
+        type: String,
+        required: [true, 'Please input sub category']
     },
     duration: {
         type: Number,
@@ -20,17 +28,20 @@ const ContestSchema = new Schema({
     brief: {
         type: String
     },
-    template: {
-        type: Boolean
-    },
-    picture: {
+    resource_link: {
         type: String
+    },
+    start_date: {
+        type: Date
     },
     created: {
         type: Date,
         required: [true, 'Please input date created']
+    },
+    published: {
+        type: Boolean,
+        required: [true, 'Please input published or not']
     }
 })
 
-//User sebagai nama collection mongoose
 module.exports = mongoose.model("Contest", ContestSchema)

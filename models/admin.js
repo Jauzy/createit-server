@@ -19,5 +19,4 @@ const AdminSchema = new Schema ({
     }
 })
 
-//User sebagai nama collection mongoose
 module.exports = mongoose.model("Admin", AdminSchema)

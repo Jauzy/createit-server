@@ -45,5 +45,4 @@ const CreatorSchema = new Schema({
     },
 })
 
-//User sebagai nama collection mongoose
 module.exports = mongoose.model("Creator", CreatorSchema)

@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt")
 const saltRounds = 10;
 
 const Creator = require('../models/creator')
+const Participation = require('../models/participation')
 class CreatorController {
     static register(req, res) {
         Creator.findOne({ email: req.body.email }, (err, user) => {
