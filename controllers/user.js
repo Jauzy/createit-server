@@ -29,7 +29,7 @@ class UserController {
                         if (result) {
                             const token = jwt.sign({ id: user._id, email: user.email, name: user.name, type: req.body.type }, process.env.SECRETKEY)
                             const { __v, password, ...userData } = user._doc
-                            res.send({ message: req.body.type + ' Login successfully', user: userData, token })
+                            res.send({ message: req.body.type + ' Login successfully', user: {...userData, type: req.body.type}, token })
                         }
                         else {
                             res.status(400).send({ message: 'Wrong email or password' })
@@ -52,7 +52,7 @@ class UserController {
                 console.log(userData)
                 const {password, ...user} = userData._doc
                 res.send({
-                    message: "request success", user
+                    message: "request success", user: {...user, type: req.user.type}
                 })
             }
         })
