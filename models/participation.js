@@ -5,11 +5,11 @@ const Schema = mongoose.Schema
 
 //bikin model schema database
 const ParticipationSchema = new Schema({
-    user_id: {
-        type: Schema.Types.ObjectId, ref: 'Client',
+    user: {
+        type: Schema.Types.ObjectId, ref: 'Creator',
         required: [true, 'Please input user id']
     },
-    contest_id: {
+    contest: {
         type: Schema.Types.ObjectId, ref: 'Contest',
         required: [true, 'Please input contest id']
     },

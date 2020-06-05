@@ -9,6 +9,7 @@ const verifyToken = (req, res, next) => {
             else {
                 req.user = {
                     email: decoded.email,
+                    name: decoded.name,
                     id: decoded.id,
                     type: decoded.type
                 }

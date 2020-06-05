@@ -5,40 +5,11 @@ const Participation = require('../models/participation')
 const Creator = require('../models/creator')
 
 class ContestController {
-    static getAllContest(req, res) {
-        Contest.find({}, (err, contests) => {
-            if (err) console.log(err)
-            else {
-                res.send({ contests })
-            }
-        })
-    }
-    static getSpecific(req, res) {
-        Contest.findById(req.params.contest_id, (err, contest) => {
-            if (err) console.log(err)
-            else if (!contest) res.status(400).send({ message: 'Contest not found' })
-            else {
-                res.send({ contest })
-            }
-        })
-    }
-    static getClientContest(req, res) {
-        if (req.user.type != 'client') res.status(400).send({ message: 'invalid type' })
-        else {
-            Contest.find({ user_id: req.user.id }, (err, contest) => {
-                if (err) console.log(err)
-                else if (!contest) res.status(400).send({ message: 'Contest not found' })
-                else {
-                    res.send({ contest })
-                }
-            })
-        }
-    }
     static createContest(req, res) {
         if (req.user.type != 'client') res.status(400).send({ message: 'invalid type' })
         else {
             let contest = new Contest({
-                user_id: req.user.id,
+                user: req.user.id,
                 title: req.body.title,
                 category: req.body.category,
                 sub_category: req.body.sub_category,
@@ -47,7 +18,11 @@ class ContestController {
                 resource_link: req.body.resource_link,
                 created: new Date(),
                 start_date: null,
-                published: false
+                published: false,
+                paid_by_client: false,
+                bank: null,
+                account_no: null,
+                entries: 0
             })
             contest.save()
                 .then(() => {
@@ -56,13 +31,53 @@ class ContestController {
                 .catch(err => console.log(err))
         }
     }
+    static getAllContest(req, res) {
+        Contest.find({}).populate('user').then((contests) => {
+            if (!contests) res.status(400).send({ message: 'no contest available' })
+            res.send({ contests })
+        }).catch((err) => res.status(400).send({ err }))
+    }
+    static getPublished(req, res) {
+        Contest.find({ published: true }).populate('user').then((contests) => {
+            if (!contests) res.status(400).send({ message: 'no contest available' })
+            res.send({ contests })
+        }).catch((err) => res.status(400).send({ err }))
+    }
+    static getSpecific(req, res) {
+        Contest.findById(req.params.contest_id).populate('user').then((contest) => {
+            if (!contest) res.status(400).send({ message: 'no contest found' })
+            res.send({ contest })
+        }).catch((err) => res.status(400).send({ err }))
+    }
+    static getClientContest(req, res) {
+        Contest.find({ user: req.user.id }).populate('user').then((contests) => {
+            if (!contests) res.status(400).send({ message: 'no contest found' })
+            res.send({ contests })
+        }).catch((err) => res.status(400).send({ err }))
+    }
+    static getWinner(req, res) {
+        Contest.findById(req.params.contest_id, (err, contest) => {
+            if (err) console.log(err)
+            else if (!contest) res.status(400).send({ message: 'Contest not found' })
+            else {
+                let query = {
+                    contest: contest._id,
+                    selected: true
+                }
+                Participation.findOne(query).populate('user').then((participation) => {
+                    if (!participation) res.status(400).send({ message: 'no winner found' })
+                    res.send({ participation })
+                }).catch((err) => res.status(400).send({ err }))
+            }
+        })
+    }
     static editContest(req, res) {
         if (req.user.type != 'client') res.status(400).send({ message: 'invalid type' })
         else {
             Contest.findById(req.params.contest_id, (err, contest) => {
                 if (err) console.log(err)
                 else if (!contest) res.status(400).send({ message: 'Contest not found' })
-                else if (req.user.id != contest.user_id) res.status(401).send({ message: 'user not authorized' })
+                else if (req.user.id != contest.user) res.status(401).send({ message: 'user not authorized' })
                 else {
                     console.log(contest)
                     let query = {
@@ -86,9 +101,9 @@ class ContestController {
             Contest.findById(req.params.contest_id, (err, contest) => {
                 if (err) console.log(err)
                 else if (!contest) res.status(400).send({ message: 'Contest not found' })
-                else if (req.user.id != contest.user_id) res.status(401).send({ message: 'user not authorized' })
+                else if (req.user.id != contest.user) res.status(401).send({ message: 'user not authorized' })
                 else {
-                    Participation.deleteMany({ contest_id: contest._id }, (err) => {
+                    Participation.deleteMany({ contest: contest._id }, (err) => {
                         if (err) res.status(500).send({ message: 'Delete Participation Failed' })
                     })
                     Contest.findByIdAndDelete(req.params.contest_id, (err, result) => {
@@ -98,13 +113,51 @@ class ContestController {
             })
         }
     }
-    static publishContest(req, res) {
+    static addPaymentInfo(req, res) {
         if (req.user.type != 'client') res.status(400).send({ message: 'invalid type' })
         else {
             Contest.findById(req.params.contest_id, (err, contest) => {
                 if (err) console.log(err)
                 else if (!contest) res.status(400).send({ message: 'Contest not found' })
-                else if (req.user.id != contest.user_id) res.status(401).send({ message: 'user not authorized' })
+                else if (req.user.id != contest.user) res.status(401).send({ message: 'user not authorized' })
+                else {
+                    let query = {
+                        account_no: req.body.account_no,
+                        bank: req.body.bank
+                    }
+                    Contest.findByIdAndUpdate(req.params.contest_id, query, (err, result) => {
+                        res.send({ message: "Payment Info Set" })
+                    })
+                }
+            })
+        }
+    }
+    static pushPaidNotification(req, res) {
+        if (req.user.type != 'client') res.status(400).send({ message: 'invalid type' })
+        else {
+            Contest.findById(req.params.contest_id, (err, contest) => {
+                if (err) console.log(err)
+                else if (!contest) res.status(400).send({ message: 'Contest not found' })
+                else if (req.user.id != contest.user) res.status(401).send({ message: 'user not authorized' })
+                else if (!contest.bank || !contest.account_no) res.status(400).send({ message: 'please fill in payment info' })
+                else {
+                    let query = {
+                        paid_by_client: true
+                    }
+                    Contest.findByIdAndUpdate(req.params.contest_id, query, (err, result) => {
+                        res.send({ message: "Notification Sent" })
+                    })
+                }
+            })
+        }
+    }
+    static publishContest(req, res) {
+        if (req.user.type != 'admin') res.status(400).send({ message: 'invalid type' })
+        else {
+            Contest.findById(req.params.contest_id, (err, contest) => {
+                if (err) console.log(err)
+                else if (!contest) res.status(400).send({ message: 'Contest not found' })
+                else if (!contest.paid_by_client) res.status(400).send({ message: 'Contest hast been paid' })
                 else {
                     let query = {
                         start_date: new Date(),
@@ -116,24 +169,6 @@ class ContestController {
                 }
             })
         }
-    }
-    static getWinner(req, res) {
-        Contest.findById(req.params.contest_id, (err, contest) => {
-            if (err) console.log(err)
-            else if (!contest) res.status(400).send({ message: 'Contest not found' })
-            else {
-                let query = {
-                    contest_id: contest._id,
-                    selected: true
-                }
-                Participation.findOne(query, (err, participation) => {
-                    Creator.findById(participation.user_id, (err, user) => {
-                        const { password, email, ...creator } = user
-                        res.send({ participation, creator: creator._doc })
-                    })
-                })
-            }
-        })
     }
 }
 

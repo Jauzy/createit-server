@@ -5,7 +5,7 @@ const Schema = mongoose.Schema
 
 //bikin model schema database
 const ContestSchema = new Schema({
-    user_id : {
+    user : {
         type: Schema.Types.ObjectId, ref:'Client',
         required: [true, 'Please input user id']
     },
@@ -41,6 +41,19 @@ const ContestSchema = new Schema({
     published: {
         type: Boolean,
         required: [true, 'Please input published or not']
+    },
+    entries: {
+        type : Number,
+        required: [true, 'Please input entries']
+    },
+    bank : {
+        type : String
+    },
+    account_no : {
+        type : String
+    },
+    paid_by_client: {
+        type: Boolean
     }
 })
 

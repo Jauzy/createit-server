@@ -27,8 +27,9 @@ class UserController {
                     if (err) console.log(err)
                     else {
                         if (result) {
-                            const token = jwt.sign({ id: user._id, email: user.email, type: req.body.type }, process.env.SECRETKEY)
-                            res.send({ message: req.body.type + ' Login successfully', user, token })
+                            const token = jwt.sign({ id: user._id, email: user.email, name: user.name, type: req.body.type }, process.env.SECRETKEY)
+                            const { __v, password, ...userData } = user._doc
+                            res.send({ message: req.body.type + ' Login successfully', user: userData, token })
                         }
                         else {
                             res.status(400).send({ message: 'Wrong email or password' })
@@ -39,63 +40,22 @@ class UserController {
         });
     }
     static getUserData(req, res) {
-        if (req.user.type == 'admin') {
-            Admin.findById(req.user.id, (err, userData) => {
-                if (err) console.log(err)
-                else if (!userData) res.status(400).send({ message: "Invalid Token" })
-                else {
-                    res.send({
-                        message: "request success", user: {
-                            id: userData._id,
-                            name: userData.name,
-                            email: userData.email
-                        }
-                    })
-                }
-            })
-        }
-        else if (req.user.type == 'creator') {
-            Creator.findById(req.user.id, (err, userData) => {
-                if (err) console.log(err)
-                else if (!userData) res.status(400).send({ message: "Invalid Token" })
-                else {
-                    res.send({
-                        message: "request success", user: {
-                            id: userData._id,
-                            name: userData.name,
-                            email: userData.email,
-                            category: userData.category,
-                            phone_no: userData.phone_no,
-                            instagram_username: userData.instagram_username,
-                            studio_name: userData.studio_name,
-                            studio_instagram_username: userData.studio_instagram_username,
-                            bio: userData.bio,
-                            expertise: userData.expertise,
-                            portofolio_link: userData.portofolio_link
-                        }
-                    })
-                }
-            })
-        }
-        else if (req.user.type == 'client') {
-            Client.findById(req.user.id, (err, userData) => {
-                if (err) console.log(err)
-                else if (!userData) res.status(400).send({ message: "Invalid Token" })
-                else {
-                    res.send({
-                        message: "request success", user: {
-                            id: userData._id,
-                            name: userData.name,
-                            email: userData.email,
-                            phone_no: userData.phone_no
-                        }
-                    })
-                }
-            })
-        }
-        else {
-            res.status(400).send({ message: 'Invalid Token' })
-        }
+        let Model = null;
+        if (req.user.type == 'admin') Model = Admin
+        else if (req.user.type == 'creator') Model = Creator
+        else if (req.user.type == 'client') Model = Client
+        else res.status(400).send({ message: 'invalid token' })
+        Model.findById(req.user.id, (err, userData) => {
+            if (err) console.log(err)
+            else if (!userData) res.status(400).send({ message: "Invalid Token" })
+            else {
+                console.log(userData)
+                const {password, ...user} = userData._doc
+                res.send({
+                    message: "request success", user
+                })
+            }
+        })
     }
     static updateUser(req, res) {
         let Model = null;

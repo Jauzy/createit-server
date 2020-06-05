@@ -11,35 +11,37 @@ class ParticipationController {
     static joinContest(req, res) {
         if (req.user.type != 'creator') res.status(400).send({ message: 'only creator can join contest' })
         else {
-            const participation = new Participation({
-                user_id: req.user.id,
-                contest_id: req.params.contest_id,
-                image_url: req.image_url,
-                selected: false
-            })
-            participation.save()
-                .then(() => {
-                    res.send({ message: 'Join Contest Success!' })
+            Contest.findById(req.params.contest_id, (err, result) => {
+                if (!result) res.status(400).send({ message: 'contest not found' })
+                if (!result.published) res.status(400).send({ message: 'contest hasnt been published' })
+                console.log(req.user)
+                const participation = new Participation({
+                    user: req.user.id,
+                    contest: req.params.contest_id,
+                    image_url: req.image_url,
+                    selected: false
                 })
-                .catch(err => console.log(err))
+                participation.save()
+                    .then(() => {
+                        Contest.findByIdAndUpdate(req.params.contest_id, { entries: result.entries + 1 }, (err, result) => {
+                            res.send({ message: 'Join Contest Success!' })
+                        })
+                    })
+                    .catch(err => console.log(err))
+            })
         }
     }
     static getAllParticipation(req, res) {
-        Participation.find({}, (err, participation) => {
-            if (err) console.log(err)
-            else {
-                res.send({ participation })
-            }
-        })
+        Participation.find({}).populate('user').populate('contest').then((participation) => {
+            if (!participation) res.status(400).send({ message: 'no participation available' })
+            res.send({ participation })
+        }).catch((err) => res.status(400).send({ err }))
     }
     static getContestParticipation(req, res) {
-        Participation.find({ contest_id: req.params.contest_id }, (err, participation) => {
-            if (err) console.log(err)
-            else if (!participation) res.send({ message: 'No participation found' })
-            else {
-                res.send({ participation })
-            }
-        })
+        Participation.find({ contest: req.params.contest_id }).populate('user').populate('contest').then((participation) => {
+            if (!participation) res.status(400).send({ message: 'no participation available' })
+            res.send({ participation })
+        }).catch((err) => res.status(400).send({ err }))
     }
     static cancelParticipation(req, res) {
         if (req.user.type != 'creator') res.status(400).send({ message: 'invalid type' })
@@ -47,10 +49,14 @@ class ParticipationController {
             Participation.findById(req.params.participation_id, (err, participation) => {
                 if (err) console.log(err)
                 else if (!participation) res.status(400).send({ message: 'Participation not found' })
-                else if (req.user.id != participation.user_id) res.status(401).send({ message: 'user not authorized' })
+                else if (req.user.id != participation.user) res.status(401).send({ message: 'user not authorized' })
                 else {
-                    Participation.findByIdAndDelete(req.params.participation_id, (err, result) => {
-                        res.send({ message: "Participation Canceled Successfully" })
+                    Contest.findById(participation.contest, (err, result) => {
+                        Contest.findByIdAndUpdate(participation.contest, { entries: result.entries - 1 }, (err, result) => {
+                            Participation.findByIdAndDelete(req.params.participation_id, (err, result) => {
+                                res.send({ message: "Participation Canceled Successfully" })
+                            })
+                        })
                     })
                 }
             })
@@ -63,10 +69,10 @@ class ParticipationController {
                 if (err) console.log(err)
                 else if (!participation) res.status(400).send({ message: 'Participation not found' })
                 else {
-                    Contest.findById(participation.contest_id, (err, contest) => {
+                    Contest.findById(participation.contest, (err, contest) => {
                         if (err) console.log(err)
                         else if (!contest) res.status(400).send({ message: 'Contest not found' })
-                        else if (req.user.id != contest.user_id) res.status(401).send({ message: 'user not authorized' })
+                        else if (req.user.id != contest.user) res.status(401).send({ message: 'user not authorized' })
                         else {
                             Participation.findByIdAndUpdate(req.params.participation_id, { selected: true }, (err, result) => {
                                 res.send({ message: "Winner Selected Successfully" })
