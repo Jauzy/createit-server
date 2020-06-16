@@ -74,8 +74,12 @@ class ParticipationController {
                         else if (!contest) res.status(400).send({ message: 'Contest not found' })
                         else if (req.user.id != contest.user) res.status(401).send({ message: 'user not authorized' })
                         else {
-                            Participation.findByIdAndUpdate(req.params.participation_id, { selected: true }, (err, result) => {
-                                res.send({ message: "Winner Selected Successfully" })
+                            Participation.findOne({ contest: participation.contest, selected: true }, (err, found) => {
+                                if (!found)
+                                    Participation.findByIdAndUpdate(req.params.participation_id, { selected: true }, (err, result) => {
+                                        res.send({ message: "Winner Selected Successfully" })
+                                    })
+                                else res.status(400).send({ message: 'Contest already have a winner!' })
                             })
                         }
                     })

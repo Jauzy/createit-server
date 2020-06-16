@@ -103,11 +103,14 @@ class ContestController {
                 else if (!contest) res.status(400).send({ message: 'Contest not found' })
                 else if (req.user.id != contest.user) res.status(401).send({ message: 'user not authorized' })
                 else {
-                    Participation.deleteMany({ contest: contest._id }, (err) => {
+                    Participation.findOne({ contest: contest._id }, (err, par) => {
                         if (err) res.status(500).send({ message: 'Delete Participation Failed' })
-                    })
-                    Contest.findByIdAndDelete(req.params.contest_id, (err, result) => {
-                        res.send({ message: "Contest Deleted Successfully" })
+                        else if (par) res.status(400).send({ message: 'This contest already have participation, cant cancel!' })
+                        else {
+                            Contest.findByIdAndDelete(req.params.contest_id, (err, result) => {
+                                res.send({ message: "Contest Deleted Successfully" })
+                            })
+                        }
                     })
                 }
             })

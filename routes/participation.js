@@ -12,8 +12,8 @@ const multer = Multer({
     },
 });
 
-route.get('/get', verifyToken, ParticipationController.getAllParticipation )
-route.get('/get/:contest_id', verifyToken, ParticipationController.getContestParticipation )
+route.get('/get', ParticipationController.getAllParticipation )
+route.get('/get/:contest_id', ParticipationController.getContestParticipation )
 route.post('/join/:contest_id',
     multer.single('image'), //file field named 'image'
     gcsMiddlewares.sendUploadToGCS,
