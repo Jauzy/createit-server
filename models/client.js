@@ -15,7 +15,6 @@ const ClientSchema = new Schema({
     },
     phone_no: {
         type: String,
-        required: [true, "Please input phone number"]
     },
     password: {
         type: String,

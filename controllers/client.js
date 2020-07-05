@@ -17,7 +17,6 @@ class ClientController {
                         let user = new Client({
                             name: req.body.name,
                             email: req.body.email,
-                            phone_no: req.body.phone_no,
                             password: hashedPassword,
                         })
                         user.save()

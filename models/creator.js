@@ -13,17 +13,15 @@ const CreatorSchema = new Schema({
         type: String,
         required: [true, "Please input email"]
     },
-    category: {
-        type: String,
-        required: [true, "Please input category"]
-    },
-    phone_no: {
-        type: String,
-        required: [true, "Please input phone number"]
-    },
     password: {
         type: String,
         required: [true, "Please input password"]
+    },
+    category: {
+        type: String,
+    },
+    phone_no: {
+        type: String,
     },
     instagram_username: {
         type: String
@@ -38,7 +36,7 @@ const CreatorSchema = new Schema({
         type: String
     },
     expertise: {
-        type: String   
+        type: String
     },
     portofolio_link: {
         type: String
