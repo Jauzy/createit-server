@@ -17,6 +17,10 @@ const CreatorSchema = new Schema({
         type: String,
         required: [true, "Please input password"]
     },
+    profile_pict: {
+        type: String,
+        default: 'https://storage.cloud.google.com/file-upload-test-bucket/createit_default_profile_pict.svg'
+    },
     category: {
         type: String,
     },

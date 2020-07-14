@@ -16,6 +16,13 @@ const ClientSchema = new Schema({
     phone_no: {
         type: String,
     },
+    address: {
+        type: String,
+    },
+    profile_pict: {
+        type: String,
+        default: 'https://storage.cloud.google.com/file-upload-test-bucket/createit_default_profile_pict.svg'
+    },
     password: {
         type: String,
         required: [true, "Please input password"]

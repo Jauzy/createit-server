@@ -27,9 +27,9 @@ class UserController {
                     if (err) console.log(err)
                     else {
                         if (result) {
-                            const token = jwt.sign({ id: user._id, email: user.email, name: user.name, type: req.body.type }, process.env.SECRETKEY)
+                            const token = jwt.sign({ id: user._id, email: user.email, name: user.name, type: req.body.type, profile_pict: user.profile_pict }, process.env.SECRETKEY)
                             const { __v, password, ...userData } = user._doc
-                            res.send({ message: req.body.type + ' Login successfully', user: {...userData, type: req.body.type}, token })
+                            res.send({ message: req.body.type + ' Login successfully', user: { ...userData, type: req.body.type }, token })
                         }
                         else {
                             res.status(400).send({ message: 'Wrong email or password' })
@@ -49,13 +49,17 @@ class UserController {
             if (err) console.log(err)
             else if (!userData) res.status(400).send({ message: "Invalid Token" })
             else {
-                console.log(userData)
-                const {password, ...user} = userData._doc
+                const { password, ...user } = userData._doc
                 res.send({
-                    message: "request success", user: {...user, type: req.user.type}
+                    message: "request success", user: { ...user, type: req.user.type }
                 })
             }
         })
+    }
+    static updateProfilePict(req, res) {
+        req.model.findByIdAndUpdate(req.user.id, { profile_pict: req.profile_pict }, (err, user) => {
+            res.send({ message: 'profile pict updated!', profile_pict: req.profile_pict })
+        }).catch(err => console.log(err))
     }
     static updateUser(req, res) {
         let Model = null;

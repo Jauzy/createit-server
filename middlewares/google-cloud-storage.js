@@ -11,11 +11,12 @@ const DEFAULT_BUCKET_NAME = 'file-upload-test-bucket'; // Replace with the name 
 //  * @param {Function} next
 //  * @return {*}
 //  */
+
 exports.sendUploadToGCS = (req, res, next) => {
     if (!req.file) {
         return next();
     }
-    
+
     const bucketName = req.body.bucketName || DEFAULT_BUCKET_NAME;
     const bucket = storage.bucket(bucketName);
     const gcsFileName = `${Date.now()}-${req.file.originalname}`;
@@ -37,6 +38,7 @@ exports.sendUploadToGCS = (req, res, next) => {
 
         return file.makePublic()
             .then(() => {
+                req.filename = gcsFileName
                 req.file.gcsUrl = gcsHelpers.getPublicUrl(bucketName, gcsFileName);
                 next();
             });
