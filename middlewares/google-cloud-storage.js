@@ -2,7 +2,7 @@ const gcsHelpers = require('../helpers/google-cloud-storage');
 
 const { storage } = gcsHelpers;
 
-const DEFAULT_BUCKET_NAME = 'file-upload-test-bucket'; // Replace with the name of your bucket
+const DEFAULT_BUCKET_NAME = 'createit-bucket'; // Replace with the name of your bucket
 
 // /**
 //  * Middleware for uploading file to GCS.

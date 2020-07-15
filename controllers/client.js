@@ -31,20 +31,6 @@ class ClientController {
             }
         })
     }
-    static createContest(req, res) {
-        let contest = new Contest({
-            user_id: req.user.id,
-            category: req.body.category,
-            duration: req.body.duration,
-            brief: req.body.brief,
-            template: req.body.template
-        })
-        contest.save()
-            .then(() => {
-                res.send({ message: 'new Contest Created Successfully' })
-            })
-            .catch(err => console.log(err))
-    }
 }
 
 module.exports = ClientController

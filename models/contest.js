@@ -5,56 +5,71 @@ const Schema = mongoose.Schema
 
 //bikin model schema database
 const ContestSchema = new Schema({
-    user : {
-        type: Schema.Types.ObjectId, ref:'Client',
+    //brief
+    user: {
+        type: Schema.Types.ObjectId, ref: 'Client',
         required: [true, 'Please input user id']
     },
-    title: {
+    name: {
         type: String,
-        required: [true, 'Please input title']
+        required: [true, 'Please input name']
     },
     category: {
         type: String,
         required: [true, 'Please input category']
     },
-    sub_category: {
+    subCategory: {
         type: String,
-        required: [true, 'Please input sub category']
+        required: [true, 'Please input category']
     },
-    duration: {
-        type: Number,
-        required: [true, 'Please input duration']
-    },
-    brief: {
+    desc: {
         type: String
     },
-    resource_link: {
+    purpose: {
         type: String
     },
-    start_date: {
-        type: Date
+    reference: [String],
+    industryType: {
+        type: String,
     },
-    created: {
-        type: Date,
-        required: [true, 'Please input date created']
+    social: {
+        type: String
     },
-    published: {
-        type: Boolean,
-        required: [true, 'Please input published or not']
+    creatorPermission: {
+        type: String
     },
-    entries: {
-        type : Number,
-        required: [true, 'Please input entries']
+    notes: {
+        type: String,
     },
-    bank : {
-        type : String
+    //pricing
+    durationHours: {
+        type: Number
     },
-    account_no : {
-        type : String
+    pricingPack: {
+        type: String
     },
-    paid_by_client: {
+    price: {
+        type: Number
+    },
+    contestType: {
+        type: String
+    },
+    //misc
+    winner: {
+        type: Schema.Types.ObjectId, ref: 'Participation'
+    },
+    payment: {
+        type: Schema.Types.ObjectId, ref: 'Payment'
+    },
+    status : {
+        type: String
+    },
+    paid: {
         type: Boolean
-    }
+    },
+    startDate: {
+        type: String
+    },
 })
 
 module.exports = mongoose.model("Contest", ContestSchema)
