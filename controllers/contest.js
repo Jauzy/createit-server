@@ -54,6 +54,15 @@ class ContestController {
             }).catch(err => res.status(400).send({ message: 'error!' }))
         }
     }
+    static cancelContest(req, res) {
+        if (req.user.type != 'client') res.status(400).send({ message: 'not authorized!' })
+        else if (req.user.id != req.contest.user) res.status(400).send({ message: 'not owner of contest!' })
+        else {
+            Contest.findByIdAndUpdate(req.contest._id, { status: 'Dibatalkan' }).then(result => {
+                res.send({ message: `Contest Canceled` })
+            }).catch(err => res.status(400).send({ message: 'error!' }))
+        }
+    }
     static getContests(req, res) {
         Contest.find({}).populate('user').then(result => {
             res.send({ contests: result, message: 'Retrive Success!' })
@@ -70,14 +79,10 @@ class ContestController {
             }).catch(err => res.status(400).send({ message: 'error!' }))
         }
     }
-    static cancelContest(req, res) {
-        if (req.user.type != 'client') res.status(400).send({ message: 'not authorized!' })
-        else if (req.user.id != req.contest.user) res.status(400).send({ message: 'not owner of contest!' })
-        else {
-            Contest.findByIdAndUpdate(req.contest._id, { status: 'Dibatalkan' }).then(result => {
-                res.send({ message: `Contest Canceled` })
-            }).catch(err => res.status(400).send({ message: 'error!' }))
-        }
+    static getOngoingContest(req, res) {
+        Contest.find({ status: 'Dalam Pengerjaan' }).then(result => {
+            res.send({message:'retrive success!', contests: result})
+        }).catch(err => res.status(400).send({ message: 'error!' }))
     }
 }
 

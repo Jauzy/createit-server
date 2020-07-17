@@ -12,22 +12,6 @@ const multer = Multer({
     },
 });
 
-route.get('/get', ParticipationController.getAllParticipation )
-route.get('/get/:contest_id', ParticipationController.getContestParticipation )
-route.post('/join/:contest_id',
-    multer.single('image'), //file field named 'image'
-    gcsMiddlewares.sendUploadToGCS,
-    (req, res, next) => {
-        if (req.file && req.file.gcsUrl) {
-            req.image_url = req.file.gcsUrl
-            next()
-        } else {
-            res.status(500).send('Unable to upload');
-        }
-    },
-    verifyToken,
-    ParticipationController.joinContest)
-route.delete('/cancel/:participation_id', verifyToken, ParticipationController.cancelParticipation)
-route.put('/select/:participation_id', verifyToken, ParticipationController.selectDesign)
+
 
 module.exports = route

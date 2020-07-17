@@ -16,6 +16,8 @@ const multer = Multer({
 route.post('/', verifyToken, ContestController.createContest)
 route.get('/', ContestController.getContests)
 
+route.get('/ongoing', ContestController.getOngoingContest)
+
 route.get('/user', verifyToken, ContestController.getClientContest)
 
 route.put('/:contestID/reference', verifyToken, contestMiddlewares.findContestById,
