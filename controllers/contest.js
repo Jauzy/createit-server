@@ -64,12 +64,14 @@ class ContestController {
         }
     }
     static getContests(req, res) {
-        Contest.find({}).populate('user').then(result => {
+        Contest.find({}).populate('user').sort({ _id: -1 }).then(result => {
             res.send({ contests: result, message: 'Retrive Success!' })
         }).catch(err => res.status(400).send({ message: 'error!' }))
     }
     static getContestById(req, res) {
-        res.send({ contest: req.contest, message: 'Retrive Success!' })
+        Contest.findById(req.contest._id).populate('user').then(result => {
+            res.send({ contest: result, message: `Contest Canceled` })
+        }).catch(err => res.status(400).send({ message: 'error!' }))
     }
     static getClientContest(req, res) {
         if (req.user.type != 'client') res.status(400).send({ message: 'not authorized!' })
@@ -81,7 +83,7 @@ class ContestController {
     }
     static getOngoingContest(req, res) {
         Contest.find({ status: 'Dalam Pengerjaan' }).then(result => {
-            res.send({message:'retrive success!', contests: result})
+            res.send({ message: 'retrive success!', contests: result })
         }).catch(err => res.status(400).send({ message: 'error!' }))
     }
 }

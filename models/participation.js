@@ -11,15 +11,23 @@ const ParticipationSchema = new Schema({
     },
     contest: {
         type: Schema.Types.ObjectId, ref: 'Contest',
-        required: [true, 'Please input contest id']
+    },
+    project: {
+        type: Schema.Types.ObjectId, ref: 'Project'
     },
     image_url: {
         type: String,
-        required: [true, 'Please input image url']
     },
-    selected: {
-        type: Boolean
-    }
+    desc: {
+        type: String
+    },
+    date_uploaded: {
+        type: Date
+    },
+    comment: [
+
+    ],
+    rate: []
 })
 
 module.exports = mongoose.model("Participation", ParticipationSchema)

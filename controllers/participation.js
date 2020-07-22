@@ -1,34 +1,98 @@
 require('dotenv').config()
-const jwt = require("jsonwebtoken")
-
-const bcrypt = require("bcrypt")
-const saltRounds = 10;
 
 const Participation = require('../models/participation')
 const Contest = require('../models/contest')
+const Project = require('../models/project')
 
 class ParticipationController {
     static joinContest(req, res) {
         if (req.user.type != 'creator') res.status(400).send({ message: 'only creator can join contest' })
         else {
-            Contest.findById(req.params.contest_id, (err, result) => {
-                if (!result) res.status(400).send({ message: 'contest not found' })
-                if (!result.published) res.status(400).send({ message: 'contest hasnt been published' })
-                const participation = new Participation({
-                    user: req.user.id,
-                    contest: req.params.contest_id,
-                    image_url: req.image_url,
-                    selected: false
-                })
-                participation.save()
-                    .then(() => {
-                        Contest.findByIdAndUpdate(req.params.contest_id, { entries: result.entries + 1 }, (err, result) => {
-                            res.send({ message: 'Join Contest Success!' })
-                        })
+            Participation.findOne({ user: req.user.id, contest: req.contest._id }).then(result => {
+                if (result) res.status(400).send({ message: 'you have already participated in this contest' })
+                else {
+                    const participation = new Participation({
+                        user: req.user.id,
+                        contest: req.contest._id,
+                        comment: [],
+                        rate: []
                     })
-                    .catch(err => console.log(err))
-            })
+                    participation.save().then(() => {
+                        res.send({ message: `${req.user.id} successfully join contest ${req.contest._id}` })
+                    })
+                }
+            }).catch(err => console.log(err))
         }
+    }
+    static async uploadDesign(req, res) {
+        const { type, id } = req.params
+        if (req.user.type != 'creator') res.status(400).send({ message: 'only creator can join contest' })
+        else {
+            let query = null
+            if (type == 'project') {
+                await Project.findById(id).then(project => {
+                    query = { user: req.user.id, project: project._id }
+                })
+            } else if (type == 'contest') {
+                await Contest.findById(id).then(contest => {
+                    query = { user: req.user.id, contest: contest._id }
+                })
+            } else res.status({ message: 'invalid type' })
+            if (query)
+                Participation.findOne(query).then(participation => {
+                    if (!participation) res.status(400).send({ message: 'participation not found!' })
+                    else {
+                        Participation.findByIdAndUpdate(participation._id, { image_url: req.image_url, date_uploaded: new Date() }).then(() => {
+                            res.send({ message: 'participation successfully updated!' })
+                        }).catch(err => console.log(err))
+                    }
+                })
+            else res.status(400).send({ message: 'error query' })
+        }
+    }
+    static updateParticipation(req, res) {
+        if (req.user.type != 'creator') res.status(400).send({ message: 'only creator can join contest' })
+        else if (req.user.id != req.participation.user._id) res.status(400).send({ message: 'you are not owner of this participation' })
+        else {
+            const { user, contest, project, image_url, ...approved } = req.body
+            Participation.findByIdAndUpdate(req.participation._id, { ...approved }).then(() => {
+                res.send({ message: 'participation successfully updated!' })
+            }).catch(err => console.log(err))
+        }
+    }
+    static giveRating(req, res) {
+        const rate = req.participation.rate
+        const index = rate.findIndex(item => item.user == req.user.id)
+        if (index != -1) rate[index] = { user: req.user.id, type: req.user.type, rate: req.body.rate }
+        else {
+            rate.push({ user: req.user.id, type: req.user.type, rate: req.body.rate })
+        }
+        Participation.findByIdAndUpdate(req.participation._id, { rate }).then(() => {
+            res.send({ message: 'you rate this participation!' })
+        })
+    }
+    static comment(req, res) {
+        const comment = req.participation.comment
+        comment.unshift({ user: req.user.id, name: req.user.name, type: req.user.type, text: req.body.text, date: new Date() })
+        Participation.findByIdAndUpdate(req.participation._id, { comment }).then(() => {
+            res.send({ message: 'you commented this participation!' })
+        })
+    }
+
+    static getParticipations(req, res) {
+        Participation.find({}).populate('user contest').sort({ _id: -1 }).then(participations => {
+            res.send({ participations })
+        }).catch(err => console.log(err))
+    }
+    static getContestParticipations(req, res) {
+        Participation.find({ contest: req.contest._id }).populate('user contest').sort({ _id: -1 }).then(participations => {
+            res.send({ participations })
+        }).catch(err => console.log(err))
+    }
+    static getProjectParticipations(req, res) {
+        Participation.find({ project: req.project._id }).populate('user project').sort({ _id: -1 }).then(participations => {
+            res.send({ participations })
+        }).catch(err => console.log(err))
     }
 }
 
