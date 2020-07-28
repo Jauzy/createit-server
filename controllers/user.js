@@ -7,6 +7,7 @@ const saltRounds = 10;
 const Admin = require('../models/admin')
 const Client = require('../models/client')
 const Creator = require('../models/creator')
+const Participation = require('../models/participation')
 
 class UserController {
     static login(req, res) {
@@ -38,23 +39,6 @@ class UserController {
                 });
             }
         });
-    }
-    static getUserData(req, res) {
-        let Model = null;
-        if (req.user.type == 'admin') Model = Admin
-        else if (req.user.type == 'creator') Model = Creator
-        else if (req.user.type == 'client') Model = Client
-        else res.status(400).send({ message: 'invalid token' })
-        Model.findById(req.user.id, (err, userData) => {
-            if (err) console.log(err)
-            else if (!userData) res.status(400).send({ message: "Invalid Token" })
-            else {
-                const { password, ...user } = userData._doc
-                res.send({
-                    message: "request success", user: { ...user, type: req.user.type }
-                })
-            }
-        })
     }
     static updateProfilePict(req, res) {
         req.model.findByIdAndUpdate(req.user.id, { profile_pict: req.profile_pict }, (err, user) => {
@@ -101,6 +85,35 @@ class UserController {
                         }
                     }
                 });
+            }
+        })
+    }
+    static getUserData(req, res) {
+        let Model = null;
+        if (req.user.type == 'admin') Model = Admin
+        else if (req.user.type == 'creator') Model = Creator
+        else if (req.user.type == 'client') Model = Client
+        else res.status(400).send({ message: 'invalid token' })
+        Model.findById(req.user.id, (err, userData) => {
+            if (err) console.log(err)
+            else if (!userData) res.status(400).send({ message: "Invalid Token" })
+            else {
+                const { password, ...user } = userData._doc
+                res.send({
+                    message: "request success", user: { ...user, type: req.user.type }
+                })
+            }
+        })
+    }
+    static getPublicProfile(req, res) {
+        const { creatorID } = req.params
+        Creator.findById(creatorID).then(user => {
+            if (!user) res.status(400).send({ message: 'creator not found!' })
+            else {
+                Participation.find({ user: creatorID }).populate('user contest project comment').populate({ path: 'comment', populate: { path: 'user_creator', model: 'Creator' } })
+                .populate({ path: 'comment', populate: { path: 'user_client', model: 'Client' } }).sort({ _id: -1 }).then(participations => {
+                    res.send({ user, participations: participations })
+                })
             }
         })
     }

@@ -34,8 +34,12 @@ route.put('/:projectID/reference', verifyToken, projectMiddlewares.findProjectBy
     ProjectController.uploadReference)
 route.delete('/:projectID/reference', verifyToken, projectMiddlewares.findProjectById, ProjectController.deleteReference)
 
+route.put('/:projectID/comment', verifyToken, projectMiddlewares.findProjectById, ProjectController.pushComment)
 route.put('/:projectID', verifyToken, projectMiddlewares.findProjectById, ProjectController.updateBrief)
 route.get('/:projectID', projectMiddlewares.findProjectById, ProjectController.getProjectById)
 route.delete('/:projectID', verifyToken, projectMiddlewares.findProjectById, ProjectController.cancelProject)
+
+route.put('/:projectID/join', verifyToken, projectMiddlewares.findProjectById, ProjectController.joinProject)
+route.put('/:projectID/approve/:userID', verifyToken, projectMiddlewares.findProjectById, ProjectController.approveDesigner)
 
 module.exports = route

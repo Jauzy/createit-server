@@ -51,7 +51,9 @@ const ProjectSchema = new Schema({
     payment: {
         type: Schema.Types.ObjectId, ref: 'Payment'
     },
-    designer : [{type: Schema.Types.ObjectId, ref:'Creator'}],
+    approvedDesigner: [{ type: Schema.Types.ObjectId, ref: 'Creator' }],
+    designer: [{ type: Schema.Types.ObjectId, ref: 'Creator' }],
+    comment: [],
     startDate: {
         type: String
     },

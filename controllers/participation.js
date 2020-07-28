@@ -3,6 +3,7 @@ require('dotenv').config()
 const Participation = require('../models/participation')
 const Contest = require('../models/contest')
 const Project = require('../models/project')
+const Comment = require('../models/comment')
 
 class ParticipationController {
     static joinContest(req, res) {
@@ -30,24 +31,32 @@ class ParticipationController {
         else {
             let query = null
             if (type == 'project') {
-                await Project.findById(id).then(project => {
-                    query = { user: req.user.id, project: project._id }
+                const participation = new Participation({
+                    user: req.user.id,
+                    project: id,
+                    image_url: req.image_url,
+                    date_uploaded: new Date(),
+                    comment: [],
+                    rate: []
+                })
+                participation.save().then(() => {
+                    res.send({ message: 'new participation created' })
                 })
             } else if (type == 'contest') {
                 await Contest.findById(id).then(contest => {
                     query = { user: req.user.id, contest: contest._id }
                 })
+                if (query)
+                    Participation.findOne(query).then(participation => {
+                        if (!participation) res.status(400).send({ message: 'participation not found!' })
+                        else {
+                            Participation.findByIdAndUpdate(participation._id, { image_url: req.image_url, date_uploaded: new Date() }).then(() => {
+                                res.send({ message: 'participation successfully updated!' })
+                            }).catch(err => console.log(err))
+                        }
+                    })
+                else res.status(400).send({ message: 'error query' })
             } else res.status({ message: 'invalid type' })
-            if (query)
-                Participation.findOne(query).then(participation => {
-                    if (!participation) res.status(400).send({ message: 'participation not found!' })
-                    else {
-                        Participation.findByIdAndUpdate(participation._id, { image_url: req.image_url, date_uploaded: new Date() }).then(() => {
-                            res.send({ message: 'participation successfully updated!' })
-                        }).catch(err => console.log(err))
-                    }
-                })
-            else res.status(400).send({ message: 'error query' })
         }
     }
     static updateParticipation(req, res) {
@@ -73,26 +82,53 @@ class ParticipationController {
     }
     static comment(req, res) {
         const comment = req.participation.comment
-        comment.unshift({ user: req.user.id, name: req.user.name, type: req.user.type, text: req.body.text, date: new Date() })
-        Participation.findByIdAndUpdate(req.participation._id, { comment }).then(() => {
-            res.send({ message: 'you commented this participation!' })
-        })
+        let newComment = null
+        if (req.user.type == 'client') {
+            newComment = new Comment({
+                user_client: req.user.id,
+                text: req.body.text,
+                date: new Date(),
+                type: req.user.type
+            })
+            newComment.save().then(saved => {
+                comment.unshift(saved._id)
+                Participation.findByIdAndUpdate(req.participation._id, { comment }).then(() => {
+                    res.send({ message: 'you commented this participation!' })
+                })
+            })
+        } else if (req.user.type == 'creator') {
+            newComment = new Comment({
+                user_creator: req.user.id,
+                text: req.body.text,
+                date: new Date(),
+                type: req.user.type
+            })
+            newComment.save().then(saved => {
+                comment.unshift(saved._id)
+                Participation.findByIdAndUpdate(req.participation._id, { comment }).then(() => {
+                    res.send({ message: 'you commented this participation!' })
+                })
+            })
+        } else
+            res.status(400).send({ type: 'invalid request' })
     }
 
     static getParticipations(req, res) {
-        Participation.find({}).populate('user contest').sort({ _id: -1 }).then(participations => {
+        Participation.find({}).populate('user contest comment user_client user_creator').sort({ _id: -1 }).then(participations => {
             res.send({ participations })
         }).catch(err => console.log(err))
     }
     static getContestParticipations(req, res) {
-        Participation.find({ contest: req.contest._id }).populate('user contest').sort({ _id: -1 }).then(participations => {
-            res.send({ participations })
-        }).catch(err => console.log(err))
+        Participation.find({ contest: req.contest._id }).populate('user contest comment').populate({ path: 'comment', populate: { path: 'user_creator', model: 'Creator' } })
+            .populate({ path: 'comment', populate: { path: 'user_client', model: 'Client' } }).sort({ _id: -1 }).then(participations => {
+                res.send({ participations })
+            }).catch(err => console.log(err))
     }
     static getProjectParticipations(req, res) {
-        Participation.find({ project: req.project._id }).populate('user project').sort({ _id: -1 }).then(participations => {
-            res.send({ participations })
-        }).catch(err => console.log(err))
+        Participation.find({ project: req.project._id }).populate('user project comment').populate({ path: 'comment', populate: { path: 'user_creator', model: 'Creator' } })
+            .populate({ path: 'comment', populate: { path: 'user_client', model: 'Client' } }).sort({ _id: -1 }).then(participations => {
+                res.send({ participations })
+            }).catch(err => console.log(err))
     }
 }
 

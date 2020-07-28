@@ -15,6 +15,8 @@ const multer = Multer({
     },
 });
 
+route.get('/public/:creatorID', UserController.getPublicProfile)
+
 route.put('/update/profile_pict',
     verifyToken,
     (req, res, next) => {
@@ -46,9 +48,11 @@ route.put('/update/profile_pict',
     },
     UserController.updateProfilePict)
 
+
 route.post('/login', UserController.login)
 route.get('/user', verifyToken, UserController.getUserData)
 route.put('/update', verifyToken, UserController.updateUser)
 route.put('/update/password', verifyToken, UserController.changePassword)
+
 
 module.exports = route

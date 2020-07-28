@@ -24,9 +24,7 @@ const ParticipationSchema = new Schema({
     date_uploaded: {
         type: Date
     },
-    comment: [
-
-    ],
+    comment: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
     rate: []
 })
 
