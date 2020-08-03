@@ -45,6 +45,9 @@ const CreatorSchema = new Schema({
     portofolio_link: {
         type: String
     },
+    verified: {
+        type: Boolean
+    }
 })
 
 module.exports = mongoose.model("Creator", CreatorSchema)

@@ -54,5 +54,9 @@ route.get('/user', verifyToken, UserController.getUserData)
 route.put('/update', verifyToken, UserController.updateUser)
 route.put('/update/password', verifyToken, UserController.changePassword)
 
+route.put('/verify/send', verifyToken, UserController.sendVerificationEmail)
+route.put('/verify/:token', UserController.verifyEmail)
+route.put('/reset/:email/:type', UserController.sendResetPasswordEmail)
+route.put('/reset/:token', UserController.resetPassword)
 
 module.exports = route

@@ -26,6 +26,9 @@ const ClientSchema = new Schema({
     password: {
         type: String,
         required: [true, "Please input password"]
+    },
+    verified: {
+        type: Boolean
     }
 })
 

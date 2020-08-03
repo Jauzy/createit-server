@@ -4,6 +4,11 @@ const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt")
 const saltRounds = 10;
 
+const emailTemplate = require('../utils/emailTemplate')
+const nodemailer = require('nodemailer');
+// const frontEndServer = 'http://localhost:3000'
+const frontEndServer = 'https://createit.id'
+
 const Admin = require('../models/admin')
 const Client = require('../models/client')
 const Creator = require('../models/creator')
@@ -111,12 +116,152 @@ class UserController {
             if (!user) res.status(400).send({ message: 'creator not found!' })
             else {
                 Participation.find({ user: creatorID }).populate('user contest project comment').populate({ path: 'comment', populate: { path: 'user_creator', model: 'Creator' } })
-                .populate({ path: 'comment', populate: { path: 'user_client', model: 'Client' } }).sort({ _id: -1 }).then(participations => {
-                    res.send({ user, participations: participations })
-                })
+                    .populate({ path: 'comment', populate: { path: 'user_client', model: 'Client' } }).sort({ _id: -1 }).then(participations => {
+                        res.send({ user, participations: participations })
+                    })
             }
         })
     }
+
+
+
+    static verifyEmail(req, res) {
+        const { token } = req.params
+        jwt.verify(token, process.env.SECRETKEY, function (err, decoded) {
+            if (err) console.log(err)
+            else {
+                const user = {
+                    email: decoded.email,
+                    id: decoded.id,
+                    type: decoded.type
+                }
+                let Model = null;
+                if (user.type == 'admin') Model = Admin
+                else if (user.type == 'creator') Model = Creator
+                else if (user.type == 'client') Model = Client
+                else res.status(400).send({ message: 'invalid token' })
+                Model.findById(user.id).then(result => {
+                    if (!result) res.status(400).send({ message: 'user not found!' })
+                    else if (result.verified) res.status(400).send({ message: 'user verified!' })
+                    else {
+                        Model.findByIdAndUpdate(user.id, { verified: true }).then(() => {
+                            res.send({ message: 'Account Verified!' })
+                        })
+                    }
+                })
+            }
+        });
+    }
+
+    static sendVerificationEmail(req, res) {
+        let Model = null;
+        if (req.user.type == 'admin') Model = Admin
+        else if (req.user.type == 'creator') Model = Creator
+        else if (req.user.type == 'client') Model = Client
+        else res.status(400).send({ message: 'invalid token' })
+        Model.findById(req.user.id).then(user => {
+            if (!user) res.status(400).send({ message: 'User not found!' })
+            else {
+                const token = jwt.sign({ id: user._id, email: user.email, type: req.user.type }, process.env.SECRETKEY)
+                var transporter = nodemailer.createTransport({
+                    service: 'gmail',
+                    auth: {
+                        user: process.env.EMAIL,
+                        pass: process.env.PASSWORD
+                    }
+                });
+
+                var mailOptions = {
+                    from: process.env.EMAIL,
+                    to: user.email,
+                    subject: 'Email Verification for Createit Web',
+                    html: emailTemplate('Verify Account', 'Verify your email for an account in createit website.', 'Verify Now',
+                        `${frontEndServer}/email?verify=${token}&&email=${user.email}`, user)
+                }
+
+                transporter.sendMail(mailOptions, function (error, info) {
+                    if (error) {
+                        console.log(error);
+                        res.status(400).send({ error })
+                    } else {
+                        console.log('Email sent: ' + info.response);
+                        res.send({ message: 'verification mail sent!' })
+                    }
+                });
+            }
+        })
+    }
+
+    static resetPassword(req, res) {
+        const { token } = req.params
+        const { newPassword } = req.body
+        jwt.verify(token, process.env.SECRETKEY, function (err, decoded) {
+            if (err) console.log(err)
+            else {
+                const user = {
+                    email: decoded.email,
+                    id: decoded.id,
+                    type: decoded.type
+                }
+                let Model = null;
+                if (user.type == 'admin') Model = Admin
+                else if (user.type == 'creator') Model = Creator
+                else if (user.type == 'client') Model = Client
+                else res.status(400).send({ message: 'invalid token' })
+                Model.findById(user.id).then(result => {
+                    if (!result) res.status(400).send({ message: 'user not found!' })
+                    else {
+                        bcrypt.hash(newPassword, saltRounds, function (err, hashedPassword) {
+                            Model.findByIdAndUpdate(user.id, { password: hashedPassword }).then(() => {
+                                res.send({ message: 'Account Password Reset Success!' })
+                            })
+                        })
+                    }
+                })
+            }
+        });
+    }
+
+    static sendResetPasswordEmail(req, res) {
+        const { email, type } = req.params
+        let Model = null;
+        if (type == 'admin') Model = Admin
+        else if (type == 'creator') Model = Creator
+        else if (type == 'client') Model = Client
+        else res.status(400).send({ message: 'invalid token' })
+        Model.findOne({ email }).then(user => {
+            if (!user) res.status(400).send({ message: 'User not found!' })
+            else {
+                const token = jwt.sign({ id: user._id, email: user.email, type }, process.env.SECRETKEY)
+                var transporter = nodemailer.createTransport({
+                    service: 'gmail',
+                    auth: {
+                        user: process.env.EMAIL,
+                        pass: process.env.PASSWORD
+                    }
+                });
+
+                var mailOptions = {
+                    from: process.env.EMAIL,
+                    to: user.email,
+                    subject: 'Reset Password for Createit Web',
+                    html: emailTemplate('Reset Password', 'Reset your password for an account in createit website.', 'Reset Now',
+                        `${frontEndServer}/forgot-password?verify=${token}&&email=${user.email}`, user)
+                }
+
+                transporter.sendMail(mailOptions, function (error, info) {
+                    if (error) {
+                        console.log(error);
+                        res.status(400).send({ error })
+                    } else {
+                        console.log('Email sent: ' + info.response);
+                        res.send({ message: 'reset password mail sent!' })
+                    }
+                });
+            }
+        })
+    }
+
 }
 
 module.exports = UserController
