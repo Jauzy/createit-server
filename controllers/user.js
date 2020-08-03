@@ -163,14 +163,16 @@ class UserController {
             if (!user) res.status(400).send({ message: 'User not found!' })
             else {
                 const token = jwt.sign({ id: user._id, email: user.email, type: req.user.type }, process.env.SECRETKEY)
-                let transporter = nodemailer.createTransport({
-                    host: 'smtp.gmail.com',
-                    port: 587,
-                    secure: false,
-                    requireTLS: true,
+
+                const transporter = nodemailer.createTransport({
+                    service: 'gmail',//smtp.gmail.com  //in place of service use host...
+                    secure: false,//true
+                    port: 25,//465
                     auth: {
                         user: process.env.EMAIL,
                         pass: process.env.PASSWORD
+                    }, tls: {
+                        rejectUnauthorized: false
                     }
                 });
 
@@ -238,14 +240,16 @@ class UserController {
                 console.log(user)
                 console.log(process.env.EMAIL, process.env.PASSWORD)
                 const token = jwt.sign({ id: user._id, email: user.email, type }, process.env.SECRETKEY)
-                let transporter = nodemailer.createTransport({
-                    host: 'smtp.gmail.com',
-                    port: 587,
-                    secure: false,
-                    requireTLS: true,
+                
+                const transporter = nodemailer.createTransport({
+                    service: 'gmail',//smtp.gmail.com  //in place of service use host...
+                    secure: false,//true
+                    port: 25,//465
                     auth: {
                         user: process.env.EMAIL,
                         pass: process.env.PASSWORD
+                    }, tls: {
+                        rejectUnauthorized: false
                     }
                 });
 
