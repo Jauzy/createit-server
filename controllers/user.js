@@ -232,6 +232,8 @@ class UserController {
         Model.findOne({ email }).then(user => {
             if (!user) res.status(400).send({ message: 'User not found!' })
             else {
+                console.log(user)
+                console.log(process.env.EMAIL, process.env.PASSWORD)
                 const token = jwt.sign({ id: user._id, email: user.email, type }, process.env.SECRETKEY)
                 var transporter = nodemailer.createTransport({
                     service: 'gmail',
