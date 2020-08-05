@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt")
 const saltRounds = 10;
 
 const emailTemplate = require('../utils/emailTemplate')
-const nodemailer = require('nodemailer');
+const transporter = require("../config/nodemailer");
 // const frontEndServer = 'http://localhost:3000'
 const frontEndServer = 'https://createit.id'
 
@@ -164,20 +164,8 @@ class UserController {
             else {
                 const token = jwt.sign({ id: user._id, email: user.email, type: req.user.type }, process.env.SECRETKEY)
 
-                const transporter = nodemailer.createTransport({
-                    service: 'gmail',//smtp.gmail.com  //in place of service use host...
-                    secure: false,//true
-                    port: 25,//465
-                    auth: {
-                        user: process.env.EMAIL,
-                        pass: process.env.PASSWORD
-                    }, tls: {
-                        rejectUnauthorized: false
-                    }
-                });
-
                 var mailOptions = {
-                    from: process.env.EMAIL,
+                    from: { name: "<Support Createit Web>", address: process.env.EMAIL },
                     to: user.email,
                     subject: 'Email Verification for Createit Web',
                     html: emailTemplate('Verify Account', 'Verify your email for an account in createit website.', 'Verify Now',
@@ -237,24 +225,9 @@ class UserController {
         Model.findOne({ email }).then(user => {
             if (!user) res.status(400).send({ message: 'User not found!' })
             else {
-                console.log(user)
-                console.log(process.env.EMAIL, process.env.PASSWORD)
-                const token = jwt.sign({ id: user._id, email: user.email, type }, process.env.SECRETKEY)
-                
-                const transporter = nodemailer.createTransport({
-                    service: 'gmail',//smtp.gmail.com  //in place of service use host...
-                    secure: false,//true
-                    port: 25,//465
-                    auth: {
-                        user: process.env.EMAIL,
-                        pass: process.env.PASSWORD
-                    }, tls: {
-                        rejectUnauthorized: false
-                    }
-                });
 
                 var mailOptions = {
-                    from: process.env.EMAIL,
+                    from: { name: "<Support Createit Web>", address: process.env.EMAIL },
                     to: user.email,
                     subject: 'Reset Password for Createit Web',
                     html: emailTemplate('Reset Password', 'Reset your password for an account in createit website.', 'Reset Now',
