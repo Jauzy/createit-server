@@ -48,11 +48,30 @@ app.use(require('cors')())
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 
+//ssl
+app.use(express.static(__dirname+'/static', {dotfiles:'allow'}))
 //routers in index.js
 const router = require('./routes/index')
 app.use('/',router)
 
+/*
 app.listen(PORT, (err) => {
     if(err) console.log(err)
     console.log(`Server is running on Port ${PORT}`)
+})*/
+
+const fs = require('fs')
+const https = require('https')
+const http = require('http')
+
+http.createServer(app).listen(80, () => {
+  console.log('Listening...')
+})
+
+https.createServer({
+  key: fs.readFileSync('/etc/letsencrypt/live/server.createit.id/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/server.createit.id/fullchain.pem'),
+  ca: fs.readFileSync('/etc/letsencrypt/live/server.createit.id/fullchain.pem')
+}, app).listen(443, () => {
+  console.log('Listening...')
 })
