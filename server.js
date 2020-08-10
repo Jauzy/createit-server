@@ -64,17 +64,17 @@ const fs = require('fs')
 const https = require('https')
 const http = require('http')
 
-const server = http.createServer(app).listen(5000, () => {
+http.createServer(app).listen(5000, () => {
     console.log('Listening...')
 })
 
-// const server = https.createServer({
-//     key: fs.readFileSync('/etc/letsencrypt/live/server.createit.id/privkey.pem'),
-//     cert: fs.readFileSync('/etc/letsencrypt/live/server.createit.id/fullchain.pem'),
-//     ca: fs.readFileSync('/etc/letsencrypt/live/server.createit.id/fullchain.pem')
-// }, app).listen(443, () => {
-//     console.log('Listening...')
-// })
+const server = https.createServer({
+    key: fs.readFileSync('/etc/letsencrypt/live/server.createit.id/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/server.createit.id/fullchain.pem'),
+    ca: fs.readFileSync('/etc/letsencrypt/live/server.createit.id/fullchain.pem')
+}, app).listen(443, () => {
+    console.log('Listening...')
+})
 
 const Message = require('./models/message')
 const Creator = require('./models/creator')
