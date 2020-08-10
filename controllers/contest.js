@@ -2,7 +2,6 @@ require('dotenv').config()
 
 const Contest = require('../models/contest')
 const Participation = require('../models/participation')
-const Payment = require('../models/payment')
 const Creator = require('../models/creator')
 
 class ContestController {

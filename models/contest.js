@@ -48,9 +48,6 @@ const ContestSchema = new Schema({
     pricingPack: {
         type: String
     },
-    price: {
-        type: Number
-    },
     contestType: {
         type: String
     },
@@ -58,14 +55,8 @@ const ContestSchema = new Schema({
     winner: {
         type: Schema.Types.ObjectId, ref: 'Participation'
     },
-    payment: {
-        type: Schema.Types.ObjectId, ref: 'Payment'
-    },
     status : {
         type: String
-    },
-    paid: {
-        type: Boolean
     },
     startDate: {
         type: String

@@ -4,7 +4,7 @@ mongoose.set('useCreateIndex', true)
 const Schema = mongoose.Schema
 
 //bikin model schema database
-const PaymentSchema = new Schema({
+const ContestPaymentSchema = new Schema({
     user: {
         type: Schema.Types.ObjectId, ref: 'Client',
         required: [true, 'Please input user id']
@@ -21,12 +21,15 @@ const PaymentSchema = new Schema({
         type: String,
         required: [true, 'Please input account no']
     },
-    amount : {
+    amount: {
         type: Number
     },
     proofOfPayment: {
         type: String
+    },
+    approved: {
+        type: Schema.Types.ObjectId, ref: 'Admin'
     }
 })
 
-module.exports = mongoose.model("Payment", PaymentSchema)
+module.exports = mongoose.model("ContestPayment", ContestPaymentSchema)

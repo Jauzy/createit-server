@@ -7,6 +7,7 @@ const userRoute = require('./user')
 const contestRoute = require('./contest')
 const participationRoute = require('./participation')
 const projectRoute = require('./project')
+const paymentRoute = require('./contest-payment')
 
 route.use('/', userRoute)
 route.use('/creator', creatorRoute)
@@ -15,5 +16,6 @@ route.use('/admin', adminRoute)
 route.use('/contest', contestRoute)
 route.use('/participation', participationRoute)
 route.use('/project', projectRoute)
+route.use('/payment', paymentRoute)
 
 module.exports = route
