@@ -4,26 +4,6 @@ const express = require("express")
 const app = express()
 const PORT = process.env.PORT || 8001
 
-const swaggerJsDoc = require("swagger-jsdoc")
-const swaggerUI = require("swagger-ui-express")
-
-//setting up swagger
-const swaggerOptions = {
-    swaggerDefinition: {
-        info: {
-            title: 'Create It - API Server',
-            description: 'Create It API Docs',
-            contacts: {
-                name: 'Anonymous'
-            },
-            servers: ['http://localhost:5000']
-        }
-    },
-    apis: ["./routes/user.js"]
-}
-const swaggerDocs = swaggerJsDoc(swaggerOptions)
-app.use('/documentation', swaggerUI.serve, swaggerUI.setup(swaggerDocs))
-
 //mongoose
 const mongoose = require('mongoose')
 
@@ -48,23 +28,25 @@ app.use(require('cors')())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-//ssl
-app.use(express.static(__dirname + '/static', { dotfiles: 'allow' }))
 //routers in index.js
 const router = require('./routes/index')
 app.use('/', router)
 
-/*
-app.listen(PORT, (err) => {
-    if(err) console.log(err)
-    console.log(`Server is running on Port ${PORT}`)
-})*/
+//swagger
+var swaggerUi = require('swagger-ui-express'),
+    swaggerDocument = require('./swagger');
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+//ssl
+app.use(express.static(__dirname + '/static', { dotfiles: 'allow' }))
 
 const fs = require('fs')
 const https = require('https')
 const http = require('http')
 
-http.createServer(app).listen(5000, () => {
+//change to 80 for production
+const server = http.createServer(app).listen(80, () => {
     console.log('Listening...')
 })
 
@@ -85,7 +67,6 @@ const moment = require('moment')
 const io = socketIo(server);
 const formatMessages = (user, text) => ({ user, text, time: moment().format('h:mm a') })
 const { userJoin, getCurrentUser, userLeave, getRoomUsers } = require('./utils/users-chat')
-const botName = 'Jojinime Bot'
 
 io.on('connection', socket => {
     //three types of emits

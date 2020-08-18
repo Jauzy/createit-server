@@ -17,9 +17,6 @@ const AdminSchema = new Schema ({
         type : String,
         required: [true, "Please input password"]
     },
-    verified: {
-        type: Boolean
-    }
 })
 
 module.exports = mongoose.model("Admin", AdminSchema)

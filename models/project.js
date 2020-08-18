@@ -41,7 +41,7 @@ const ProjectSchema = new Schema({
     notes: {
         type: String,
     },
-    durationDays: {
+    durationHours: {
         type: Number
     },
     budget: {

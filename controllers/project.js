@@ -119,11 +119,6 @@ class ProjectController {
             }).catch(err => res.status(400).send({ message: 'error!' }))
         }
     }
-    static getOngoingProject(req, res) {
-        Project.find({ status: 'Dalam Pengerjaan' }).then(result => {
-            res.send({ message: 'retrive success!', project: result })
-        }).catch(err => res.status(400).send({ message: 'error!' }))
-    }
 }
 
 module.exports = ProjectController

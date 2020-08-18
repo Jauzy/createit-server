@@ -23,9 +23,6 @@ const CommentSchema = new Schema({
         type: Date,
         required: [true]
     },
-    payment: {
-        type: Schema.Types.ObjectId, ref: 'Payment'
-    }
 })
 
 module.exports = mongoose.model("Comment", CommentSchema)

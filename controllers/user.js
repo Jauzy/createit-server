@@ -123,8 +123,6 @@ class UserController {
         })
     }
 
-
-
     static verifyEmail(req, res) {
         const { token } = req.params
         jwt.verify(token, process.env.SECRETKEY, function (err, decoded) {

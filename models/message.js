@@ -10,7 +10,7 @@ const MessageSchema = new Schema({
         type: Schema.Types.ObjectId, ref: 'Creator',
     },
     client: {
-        type: Schema.Types.ObjectId, ref: 'Creator',
+        type: Schema.Types.ObjectId, ref: 'Client',
     },
     text: {
         type: String,
@@ -23,6 +23,9 @@ const MessageSchema = new Schema({
     time: {
         type: String,
         required: [true, 'please provide date']
+    },
+    payment: {
+        type: Schema.Types.ObjectId, ref: 'ProjectPayment'
     }
 })
 

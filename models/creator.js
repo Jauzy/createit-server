@@ -21,29 +21,11 @@ const CreatorSchema = new Schema({
         type: String,
         default: 'https://storage.cloud.google.com/file-upload-test-bucket/createit_default_profile_pict.svg'
     },
-    category: {
-        type: String,
+    address: {
+        type: String
     },
     phone_no: {
         type: String,
-    },
-    instagram_username: {
-        type: String
-    },
-    studio_name: {
-        type: String
-    },
-    studio_instagram_username: {
-        type: String
-    },
-    bio: {
-        type: String
-    },
-    expertise: {
-        type: String
-    },
-    portofolio_link: {
-        type: String
     },
     verified: {
         type: Boolean
