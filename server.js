@@ -46,7 +46,7 @@ const https = require('https')
 const http = require('http')
 
 //change to 80 for production
-const server = http.createServer(app).listen(80, () => {
+http.createServer(app).listen(80, () => {
     console.log('Listening...')
 })
 
