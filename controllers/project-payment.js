@@ -26,13 +26,13 @@ class PaymentController {
                             created_at: new Date()
                         })
                         newPayment.save().then((payment) => {
-                            res.send({ message: 'Payment Successfully Created!', paymentId: payment._id })
+                            res.send({ message: 'Payment Successfully Created!', paymentID: payment._id })
                         }).catch(err => res.status(400).send({ message: err }))
                     } else if (payment.status != 'Belum Dibayar') {
                         res.status(400).send({ message: 'you cant update this payment' })
                     } else {
-                        Payment.findByIdAndUpdate(payment._id, { ...req.body }).then(() => {
-                            res.send({ message: 'payment updated!' })
+                        Payment.findByIdAndUpdate(payment._id, { ...req.body }).then((payment) => {
+                            res.send({ message: 'payment updated!', paymentID: payment._id })
                         }).catch(err => res.status(400).send({ message: 'error updating payment' }))
                     }
                 })

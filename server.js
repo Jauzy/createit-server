@@ -46,17 +46,17 @@ const https = require('https')
 const http = require('http')
 
 //change to 80 for production
-http.createServer(app).listen(80, () => {
+const server = http.createServer(app).listen(5000, () => {
     console.log('Listening...')
 })
 
-const server = https.createServer({
-    key: fs.readFileSync('/etc/letsencrypt/live/server.createit.id/privkey.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/server.createit.id/fullchain.pem'),
-    ca: fs.readFileSync('/etc/letsencrypt/live/server.createit.id/fullchain.pem')
-}, app).listen(443, () => {
-    console.log('Listening...')
-})
+// const server = https.createServer({
+//     key: fs.readFileSync('/etc/letsencrypt/live/server.createit.id/privkey.pem'),
+//     cert: fs.readFileSync('/etc/letsencrypt/live/server.createit.id/fullchain.pem'),
+//     ca: fs.readFileSync('/etc/letsencrypt/live/server.createit.id/fullchain.pem')
+// }, app).listen(443, () => {
+//     console.log('Listening...')
+// })
 
 const Message = require('./models/message')
 const Creator = require('./models/creator')
@@ -80,8 +80,8 @@ io.on('connection', socket => {
             socket.join(room)
         }
         userJoin(socket.id, uid, utype, room)
-        Message.find({ room }).populate('client creator').then((messages) => {
-            socket.emit('recoverMessage', messages)
+        Message.find({ room }).sort({ _id: -1 }).limit(20).populate('client creator payment').then((messages) => {
+            socket.emit('recoverMessage', messages.reverse())
         })
     })
 
@@ -102,10 +102,8 @@ io.on('connection', socket => {
                         time: moment().format('h:mm a')
                     })
                     newMsg.save().then(() => {
-                        io.to(room).emit('message', {
-                            client: user, text: msg,
-                            room,
-                            time: moment().format('h:mm a')
+                        Message.find({ room }).sort({ _id: -1 }).limit(20).populate('client creator payment').then((messages) => {
+                            io.emit('recoverMessage', messages.reverse())
                         })
                     })
                 } else if (utype == 'creator') {
@@ -117,11 +115,8 @@ io.on('connection', socket => {
                         payment: payment ? payment : null
                     })
                     newMsg.save().then(() => {
-                        io.to(room).emit('message', {
-                            creator: user, text: msg,
-                            room,
-                            time: moment().format('h:mm a'),
-                            payment: payment ? payment : null
+                        Message.find({ room }).sort({ _id: -1 }).limit(20).populate('client creator payment').then((messages) => {
+                            io.emit('recoverMessage', messages.reverse())
                         })
                     })
                 }
