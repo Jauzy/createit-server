@@ -76,14 +76,11 @@ io.on('connection', socket => {
     //multi client including the one who connect : io.emit()
     socket.on('joinRoom', ({ uid, utype, room }) => {
         const user = userJoin(socket.id, uid, utype, room)
-        console.log(`${room} join`)
         //socket io room
         if (!getCurrentUser(socket._id))
             socket.join(user.room)
         Message.find({ room }).populate('client creator').then((messages) => {
             socket.emit('recoverMessage', messages)
-            //welcome current user
-            // socket.emit('message', formatMessages({ nickname: botName }, 'Welcome to Jojinime!'))
         })
     })
 
