@@ -75,10 +75,11 @@ io.on('connection', socket => {
     //multi client except the one who connect : socket.broadcast.emit()
     //multi client including the one who connect : io.emit()
     socket.on('joinRoom', ({ uid, utype, room }) => {
-        const user = userJoin(socket.id, uid, utype, room)
         //socket io room
-        if (!getCurrentUser(socket._id))
-            socket.join(user.room)
+        if (!getCurrentUser(uid, room)) {
+            socket.join(room)
+        }
+        userJoin(socket.id, uid, utype, room)
         Message.find({ room }).populate('client creator').then((messages) => {
             socket.emit('recoverMessage', messages)
         })

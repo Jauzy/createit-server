@@ -3,18 +3,17 @@ const users = []
 //join user to chat
 const userJoin = (id, uid, utype, room) => {
     const user = { id, uid, utype, room }
-    const index = users.findIndex(user => user.id === id)
+    const index = users.findIndex(user => user.uid === uid && user.room === room)
     if (index === -1)
         users.push(user)
     else {
-        users[index].uid = uid
-        users[index].utype = utype
+        users[index].id = id
     }
     return user
 }
 
-const getCurrentUser = (id) => {
-    return users.find(user => user.id === id)
+const getCurrentUser = (id, room) => {
+    return users.find(user => user.uid === id && user.room == room)
 }
 
 const userLeave = (id) => {
