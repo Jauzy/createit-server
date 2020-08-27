@@ -27,6 +27,7 @@ const CreatorSchema = new Schema({
     phone_no: {
         type: String,
     },
+    tags: [],
     verified: {
         type: Boolean
     }

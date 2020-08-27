@@ -25,8 +25,8 @@ class PaymentController {
                             status: 'Belum Dibayar',
                             created_at: new Date()
                         })
-                        newPayment.save().then(() => {
-                            res.send({ message: 'Payment Successfully Created!' })
+                        newPayment.save().then((payment) => {
+                            res.send({ message: 'Payment Successfully Created!', paymentId: payment._id })
                         }).catch(err => res.status(400).send({ message: err }))
                     } else if (payment.status != 'Belum Dibayar') {
                         res.status(400).send({ message: 'you cant update this payment' })

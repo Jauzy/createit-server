@@ -1,13 +1,14 @@
 const users = []
 
 //join user to chat
-const userJoin = (id, username, room) => {
-    const user = { id, username, room }
+const userJoin = (id, uid, utype, room) => {
+    const user = { id, uid, utype, room }
     const index = users.findIndex(user => user.id === id)
     if (index === -1)
         users.push(user)
     else {
-        users[index].username = username
+        users[index].uid = uid
+        users[index].utype = utype
     }
     return user
 }

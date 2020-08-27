@@ -46,7 +46,7 @@ const https = require('https')
 const http = require('http')
 
 //change to 80 for production
-const server = http.createServer(app).listen(80, () => {
+http.createServer(app).listen(80, () => {
     console.log('Listening...')
 })
 
@@ -69,48 +69,70 @@ const formatMessages = (user, text) => ({ user, text, time: moment().format('h:m
 const { userJoin, getCurrentUser, userLeave, getRoomUsers } = require('./utils/users-chat')
 
 io.on('connection', socket => {
+    console.log('new conn')
     //three types of emits
     //single client emit : socket.emit()
     //multi client except the one who connect : socket.broadcast.emit()
     //multi client including the one who connect : io.emit()
-    socket.on('joinRoom', ({ username, room }) => {
-        const user = userJoin(socket.id, username, room)
+    socket.on('joinRoom', ({ uid, utype, room }) => {
+        const user = userJoin(socket.id, uid, utype, room)
+        console.log(`${room} join`)
         //socket io room
         if (!getCurrentUser(socket._id))
             socket.join(user.room)
-        Message.find({ room }).limit(20).populate('user').then((messages) => {
+        Message.find({ room }).populate('client creator').then((messages) => {
             socket.emit('recoverMessage', messages)
-            io.to(user.room).emit('roomUsers', {
-                room: user.room,
-                users: getRoomUsers(user.room)
-            })
             //welcome current user
             // socket.emit('message', formatMessages({ nickname: botName }, 'Welcome to Jojinime!'))
         })
     })
 
     //listen for chat message
-    socket.on('chatMessage', (user, msg, room) => {
-        User.findById(user._id).then(user => {
+    socket.on('chatMessage', ({ uid, utype, msg, room, payment }) => {
+        let Model = null
+        if (utype == 'client') Model = Client
+        else if (utype == 'creator') Model = Creator
+        else Model = Creator
+        Model.findById(uid).then(user => {
             if (user) {
-                const newMsg = new Message({
-                    user: user._id,
-                    text: msg,
-                    room,
-                    time: moment().format('h:mm a')
-                })
-                newMsg.save().then(() => {
-                    io.to(room).emit('message', formatMessages({ nickname: user.nickname }, msg))
-                })
+                let newMsg = null
+                if (utype == 'client') {
+                    newMsg = new Message({
+                        client: uid,
+                        text: msg,
+                        room,
+                        time: moment().format('h:mm a')
+                    })
+                    newMsg.save().then(() => {
+                        io.to(room).emit('message', {
+                            client: user, text: msg,
+                            room,
+                            time: moment().format('h:mm a')
+                        })
+                    })
+                } else if (utype == 'creator') {
+                    newMsg = new Message({
+                        creator: uid,
+                        text: msg,
+                        room,
+                        time: moment().format('h:mm a'),
+                        payment: payment ? payment : null
+                    })
+                    newMsg.save().then(() => {
+                        io.to(room).emit('message', {
+                            creator: user, text: msg,
+                            room,
+                            time: moment().format('h:mm a'),
+                            payment: payment ? payment : null
+                        })
+                    })
+                }
             }
         })
     })
 
     //runs when client disconnect
     socket.on('disconnect', () => {
-        const user = userLeave(socket.id)
-        if (user) {
-
-        }
+        console.log('a user has disconnected')
     })
 })

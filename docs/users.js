@@ -168,6 +168,7 @@ module.exports = {
                 {
                     "in": "body",
                     "name": "body",
+                    "description": "tags field only for creator type user",
                     "schema": {
                         "type": "object",
                         "properties": {
@@ -182,6 +183,12 @@ module.exports = {
                             },
                             "phone_no": {
                                 "type": "string"
+                            },
+                            "tags": {
+                                "type": "array",
+                                "items": {
+                                    "type": "string"
+                                }
                             }
                         }
                     }
@@ -209,7 +216,7 @@ module.exports = {
                         }
                     },
                     "required": true,
-                    "description":"image field is an image object",
+                    "description": "image field is an image object",
                 },
                 token
             ]
