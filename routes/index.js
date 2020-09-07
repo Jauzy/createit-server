@@ -1,0 +1,27 @@
+
+const route = require('express').Router()
+const creator = require('./creator')
+const client = require('./client')
+const admin = require('./admin')
+const user = require('./user')
+const participation = require('./participation')
+const contest = require('./contest')
+const contestPayment = require('./contest-payment')
+const project = require('./project')
+const projectPayment = require('./project-payment')
+const event = require('./event')
+const eventPayment = require('./event-payment')
+
+route.use('/', user)
+route.use('/creator', creator)
+route.use('/client', client)
+route.use('/admin', admin)
+route.use('/contest', contest)
+route.use('/participation', participation)
+route.use('/project', project)
+route.use('/event', event)
+route.use('/payment', contestPayment)
+route.use('/payment-project', projectPayment)
+route.use('/payment-event', eventPayment)
+
+module.exports = route
