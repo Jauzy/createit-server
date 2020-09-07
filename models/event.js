@@ -36,9 +36,6 @@ const EventSchema = new Schema({
     price: {
         type: Number, required: [true, 'price required']
     },
-    edited_date: {
-        type: Date
-    },
     termsAndCondition: []
 })
 

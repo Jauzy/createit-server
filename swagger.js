@@ -15,6 +15,8 @@ const participation = require('./docs/participation')
 const project = require('./docs/project')
 const projectpayment = require('./docs/project-payment')
 const creator = require('./docs/creator')
+const event = require('./docs/event')
+const eventpayment = require('./docs/event-payment')
 
 module.exports = {
     "openapi": "3.0.0",
@@ -29,6 +31,8 @@ module.exports = {
         }
     ],
     "paths": {
-        ...users, ...contest, ...contestpayment, ...participation, ...project, ...projectpayment, ...creator
+        ...users, ...contest, ...contestpayment,
+        ...participation, ...project, ...projectpayment,
+        ...creator, ...event, ...eventpayment
     }
 }
