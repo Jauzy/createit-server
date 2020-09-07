@@ -51,7 +51,7 @@ module.exports = {
             "tags": [
                 "Admin Endpoints"
             ],
-            "summary": "User Register",
+            "summary": "Admin Register",
             "parameters": [
                 {
                     "in": "body",
@@ -59,8 +59,8 @@ module.exports = {
                     "schema": {
                         "type": "object",
                         "properties": {
-                            "type": {
-                                "type": "string"
+                            "name": {
+                                type:"string"
                             },
                             "email": {
                                 "type": "string"
@@ -79,7 +79,7 @@ module.exports = {
             "tags": [
                 "Users Endpoints"
             ],
-            "summary": "User Register",
+            "summary": "Client Register",
             "parameters": [
                 {
                     "in": "body",
@@ -87,8 +87,8 @@ module.exports = {
                     "schema": {
                         "type": "object",
                         "properties": {
-                            "type": {
-                                "type": "string"
+                            "name": {
+                                type:"string"
                             },
                             "email": {
                                 "type": "string"
@@ -107,7 +107,7 @@ module.exports = {
             "tags": [
                 "Users Endpoints"
             ],
-            "summary": "User Register",
+            "summary": "Creator Register",
             "parameters": [
                 {
                     "in": "body",
@@ -115,8 +115,8 @@ module.exports = {
                     "schema": {
                         "type": "object",
                         "properties": {
-                            "type": {
-                                "type": "string"
+                            "name": {
+                                type:"string"
                             },
                             "email": {
                                 "type": "string"
