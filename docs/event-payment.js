@@ -9,6 +9,28 @@ const token = {
 }
 
 module.exports = {
+    '/payment-event': {
+        get: {
+            tags: [
+                "Event Payment Endpoints"
+            ],
+            summary: "Get All Unapproved Payments",
+            parameters: [
+                token
+            ]
+        }
+    },
+    '/payment-event/user': {
+        get: {
+            tags: [
+                "Event Payment Endpoints"
+            ],
+            summary: "Get All User Payments",
+            parameters: [
+                token
+            ]
+        }
+    },
     '/payment-event/{paymentID}/approve': {
         put: {
             tags: [

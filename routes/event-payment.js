@@ -29,5 +29,7 @@ route.delete('/:paymentID', verifyToken, PaymentController.deletePayment)
 route.get('/:paymentID', PaymentController.getPaymentByID)
 route.post('/event/:eventID', verifyToken, PaymentController.newEventPayment)
 route.get('/event/:eventID', PaymentController.getAllPaymentFromEvent)
+route.get('/', verifyToken, PaymentController.getUnApprovedPayments)
+route.get('/user', verifyToken, PaymentController.getUserPayment)
 
 module.exports = route

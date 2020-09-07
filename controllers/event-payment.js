@@ -11,7 +11,6 @@ const Payment = require('../models/event-payment')
 
 class EventPaymentController {
     static newEventPayment(req, res) {
-        console.log('pass')
         const { eventID } = req.params
         Event.findById(eventID).then(event => {
             if (event) {
@@ -108,6 +107,26 @@ class EventPaymentController {
             })
         }
     }
+    static getUnApprovedPayments(req, res) {
+        if (req.user.type !== 'admin') res.status(401).send({ message: 'not authorized!' })
+        else
+            Payment.find({ approved: null, proofOfPayment: { $ne: null } }).populate('client creator approved event').then(payments => {
+                res.send({ payments })
+            })
+    }
+    static getUserPayment(req, res) {
+        if (req.user.type == 'client') {
+            Payment.find({ client: req.user.id }).populate('client creator approved event').then(result => {
+                res.send({ payments: result, message: 'Retrive Success!' })
+            }).catch(err => res.status(400).send({ message: 'error!' }))
+        } else if (req.user.type == 'creator') {
+            Payment.find({ creator: req.user.id }).populate('client creator approved event').then(result => {
+                res.send({ payments: result, message: 'Retrive Success!' })
+            }).catch(err => res.status(400).send({ message: 'error!' }))
+        } else {
+            res.status(400).send({ message: 'invalid type' })
+        }
+    }
     static getAllPaymentFromEvent(req, res) {
         const { eventID } = req.params
         Event.findById(eventID).then(event => {
@@ -123,11 +142,8 @@ class EventPaymentController {
     }
     static getPaymentByID(req, res) {
         const { paymentID } = req.params
-        Payment.findById(paymentID).then(payment => {
-            if (payment.approved) {
-
-            } else
-                res.send({ payment })
+        Payment.findById(paymentID).populate('client creator approved event').then(payment => {
+            res.send({ payment })
         }).catch(err => res.status(500).send({ message: 'error' }))
     }
     static deletePayment(req, res) {
